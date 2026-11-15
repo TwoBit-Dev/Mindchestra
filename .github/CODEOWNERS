@@ -1,0 +1,19 @@
+* @Remirdy @zeynepiremakbulut
+/packages/contracts/ @Remirdy @zeynepiremakbulut
+/docs/adr/ @Remirdy @zeynepiremakbulut
+/docs/api/ @Remirdy @zeynepiremakbulut
+/tests/contract/ @Remirdy @zeynepiremakbulut
+/packages/core/ @Remirdy
+/packages/storage/ @Remirdy
+/packages/policy/ @Remirdy
+/packages/mcp-server/ @Remirdy
+/packages/mcp-gateway/ @Remirdy
+/packages/workspaces/ @Remirdy
+/apps/daemon/ @Remirdy
+/tests/core/ @Remirdy
+/tests/security/ @Remirdy
+/packages/adapter-sdk/ @zeynepiremakbulut
+/packages/adapters/ @zeynepiremakbulut
+/apps/cli/ @zeynepiremakbulut
+/apps/web/ @zeynepiremakbulut
+/tests/adapters/ @zeynepiremakbulut

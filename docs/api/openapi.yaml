@@ -1,0 +1,486 @@
+openapi: 3.1.0
+info:
+  title: Mindchestra Daemon API
+  version: 0.1.0
+  license:
+    name: MIT
+servers:
+  - url: http://127.0.0.1:4311
+paths:
+  /v1/health:
+    get:
+      summary: Service health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /v1/missions:
+    post:
+      summary: Create and enqueue a mission
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissionSpec"
+      responses:
+        "202":
+          description: Mission accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionSnapshot"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+    get:
+      summary: List missions
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated mission snapshots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionListResponse"
+  /v1/missions/{id}:
+    get:
+      summary: Get mission snapshot
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Mission snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionSnapshot"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/missions/{id}/events:
+    get:
+      summary: Stream ordered mission events via SSE
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: after
+          schema:
+            type: integer
+            minimum: 0
+        - in: header
+          name: Last-Event-ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Server-Sent Events stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "410":
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/missions/{id}/result:
+    get:
+      summary: Get finalized mission result
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Mission result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionResult"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/missions/{id}/cancel:
+    post:
+      summary: Request idempotent mission cancellation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "202":
+          description: Cancellation accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionSnapshot"
+  /v1/missions/{id}/evidence:
+    get:
+      summary: List claims, evidence references, and verdicts for a mission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated evidence bundle
+  /v1/missions/{id}/artifacts:
+    get:
+      summary: List mission artifacts
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Artifact metadata list
+  /v1/missions/{id}/replay:
+    get:
+      summary: Reconstruct mission state deterministically from stored events
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: upToSeq
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        "200":
+          description: Deterministic replay projection
+  /v1/missions/{id}/rerun:
+    post:
+      summary: Start a new mission linked by parent lineage
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "202":
+          description: New mission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionSnapshot"
+  /v1/artifacts/{id}:
+    get:
+      summary: Download artifact blob
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Raw artifact content
+  /v1/agents:
+    get:
+      summary: List registered agents and latest probe status
+      responses:
+        "200":
+          description: Agent summaries
+    post:
+      summary: Register or configure an agent instance
+      responses:
+        "201":
+          description: Agent configured
+  /v1/agents/{id}/probe:
+    post:
+      summary: Probe agent readiness and resolved capabilities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Probe result
+  /v1/agents/{id}:
+    delete:
+      summary: Remove configured agent when no active runs depend on it
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/workspaces:
+    get:
+      summary: List registered workspaces
+      responses:
+        "200":
+          description: Workspace summaries
+    post:
+      summary: Register a workspace path
+      responses:
+        "201":
+          description: Workspace registered
+  /v1/mcp/servers:
+    get:
+      summary: List registered downstream MCP servers
+      responses:
+        "200":
+          description: Redacted MCP server summaries
+    post:
+      summary: Register downstream MCP server configuration
+      responses:
+        "201":
+          description: Redacted MCP server summary
+  /v1/mcp/servers/{id}/probe:
+    post:
+      summary: Probe downstream MCP server connectivity
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Server connection status
+  /v1/mcp/servers/{id}/tools:
+    get:
+      summary: List discovered tools and schema hashes for a downstream MCP server
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Discovered tool descriptors
+  /v1/approvals:
+    get:
+      summary: List approval requests
+      parameters:
+        - in: query
+          name: missionId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Approval request list
+  /v1/approvals/{id}/decision:
+    post:
+      summary: Record user approval or denial bound to actionHash
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Recorded decision
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+components:
+  responses:
+    ErrorResponse:
+      description: Error envelope
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, version, schemaVersion]
+      properties:
+        status:
+          type: string
+        version:
+          type: string
+        schemaVersion:
+          type: integer
+    MissionSpec:
+      type: object
+      required: [schemaVersion, objective, mode, agents, workspace, profile, budget]
+      properties:
+        schemaVersion:
+          type: integer
+          const: 1
+        objective:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        mode:
+          type: string
+        agents:
+          type: array
+          items:
+            type: string
+        workspace:
+          type: string
+        profile:
+          type: string
+        budget:
+          type: object
+    MissionSnapshot:
+      type: object
+      required: [id, spec, status, phase, createdAt, updatedAt, lastSeq, resultAvailable, pendingApprovalIds]
+      properties:
+        id:
+          type: string
+          format: uuid
+        spec:
+          $ref: "#/components/schemas/MissionSpec"
+        status:
+          type: string
+        phase:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastSeq:
+          type: integer
+        resultAvailable:
+          type: boolean
+        pendingApprovalIds:
+          type: array
+          items:
+            type: string
+    MissionListResponse:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MissionSnapshot"
+        nextCursor:
+          type:
+            - string
+            - "null"
+    MissionResult:
+      type: object
+      required: [missionId, status, summary, claims, evidence, verdicts, artifactIds, unresolved]
+      properties:
+        missionId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        summary:
+          type: string
+        claims:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          items:
+            type: string
+        verdicts:
+          type: array
+          items:
+            type: string
+        artifactIds:
+          type: array
+          items:
+            type: string
+        unresolved:
+          type: array
+          items:
+            type: string
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, retryable]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            retryable:
+              type: boolean
+            requestId:
+              type: string
+            details:
+              type: object

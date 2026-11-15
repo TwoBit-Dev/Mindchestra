@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@mindchestra/contracts": ["./packages/contracts/src/index.ts"],
+      "@mindchestra/storage": ["./packages/storage/src/index.ts"],
+      "@mindchestra/policy": ["./packages/policy/src/index.ts"],
+      "@mindchestra/workspaces": ["./packages/workspaces/src/index.ts"],
+      "@mindchestra/core": ["./packages/core/src/index.ts"],
+      "@mindchestra/mcp-gateway": ["./packages/mcp-gateway/src/index.ts"],
+      "@mindchestra/mcp-server": ["./packages/mcp-server/src/index.ts"],
+      "@mindchestra/daemon": ["./apps/daemon/src/index.ts"]
+    }
+  },
+  "include": ["tests/**/*.ts", "vitest.config.ts"],
+  "references": [
+    { "path": "./packages/contracts" },
+    { "path": "./packages/storage" },
+    { "path": "./packages/policy" },
+    { "path": "./packages/workspaces" },
+    { "path": "./packages/core" },
+    { "path": "./packages/mcp-gateway" },
+    { "path": "./packages/mcp-server" },
+    { "path": "./apps/daemon" }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "objective": "Review candidate without candidateArtifactId",
+  "mode": "review",
+  "agents": ["agent-alpha", "agent-alpha"],
+  "workspace": "demo-repo",
+  "profile": "read-only",
+  "budget": {
+    "maxRuns": 0,
+    "maxSeconds": 600,
+    "maxRounds": 2,
+    "maxConcurrency": 3,
+    "maxToolCalls": 20
+  }
+}

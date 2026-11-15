@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "objective": "Audit memory allocation patterns in simulation update loop",
+  "mode": "council",
+  "agents": ["agent-alpha", "agent-beta", "agent-gamma"],
+  "workspace": "demo-repo",
+  "profile": "read-only",
+  "budget": {
+    "maxRuns": 7,
+    "maxSeconds": 600,
+    "maxRounds": 2,
+    "maxConcurrency": 3,
+    "maxToolCalls": 20
+  }
+}

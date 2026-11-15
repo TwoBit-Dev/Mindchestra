@@ -1,0 +1,30 @@
+{
+  "name": "mindchestra",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": "TwoBit Dev",
+  "packageManager": "pnpm@11.5.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run",
+    "test:contract": "vitest run tests/contract",
+    "test:core": "vitest run tests/core",
+    "test:security": "vitest run tests/security",
+    "test:integration": "vitest run tests/integration",
+    "clean": "tsc -b --clean"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "~1.6.1",
+    "@types/node": "~22.13.10",
+    "fastify": "~5.2.1",
+    "typescript": "~5.8.2",
+    "vitest": "~3.0.8",
+    "zod": "~3.24.2"
+  }
+}

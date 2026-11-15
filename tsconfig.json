@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/contracts" },
+    { "path": "./packages/storage" },
+    { "path": "./packages/policy" },
+    { "path": "./packages/workspaces" },
+    { "path": "./packages/core" },
+    { "path": "./packages/mcp-gateway" },
+    { "path": "./packages/mcp-server" },
+    { "path": "./apps/daemon" },
+    { "path": "./tsconfig.test.json" }
+  ]
+}

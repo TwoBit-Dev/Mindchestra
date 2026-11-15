@@ -1,0 +1,90 @@
+{
+  "events": [
+    {
+      "schemaVersion": 1,
+      "seq": 1,
+      "id": "10000000-0000-4000-8000-000000000001",
+      "missionId": "20000000-0000-4000-8000-000000000001",
+      "actor": "daemon",
+      "at": "2026-11-15T10:00:00.000Z",
+      "correlationId": "30000000-0000-4000-8000-000000000001",
+      "type": "mission.created",
+      "payload": {
+        "spec": {
+          "schemaVersion": 1,
+          "objective": "Audit runtime allocation",
+          "mode": "council",
+          "agents": ["agent-alpha"],
+          "workspace": "demo-repo",
+          "profile": "read-only",
+          "budget": {
+            "maxRuns": 7,
+            "maxSeconds": 600,
+            "maxRounds": 2,
+            "maxConcurrency": 3,
+            "maxToolCalls": 20
+          }
+        }
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "seq": 2,
+      "id": "10000000-0000-4000-8000-000000000002",
+      "missionId": "20000000-0000-4000-8000-000000000001",
+      "actor": "daemon",
+      "at": "2026-11-15T10:00:01.000Z",
+      "correlationId": "30000000-0000-4000-8000-000000000001",
+      "type": "mission.phase",
+      "payload": {
+        "phase": "independent"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "seq": 3,
+      "id": "10000000-0000-4000-8000-000000000003",
+      "missionId": "20000000-0000-4000-8000-000000000001",
+      "actor": "agent-alpha",
+      "at": "2026-11-15T10:00:02.000Z",
+      "correlationId": "30000000-0000-4000-8000-000000000001",
+      "runId": "40000000-0000-4000-8000-000000000001",
+      "type": "agent.started",
+      "payload": {}
+    },
+    {
+      "schemaVersion": 1,
+      "seq": 4,
+      "id": "10000000-0000-4000-8000-000000000004",
+      "missionId": "20000000-0000-4000-8000-000000000001",
+      "actor": "agent-alpha",
+      "at": "2026-11-15T10:00:03.000Z",
+      "correlationId": "30000000-0000-4000-8000-000000000001",
+      "runId": "40000000-0000-4000-8000-000000000001",
+      "type": "agent.finished",
+      "payload": {
+        "summary": "Inspection complete"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "seq": 5,
+      "id": "10000000-0000-4000-8000-000000000005",
+      "missionId": "20000000-0000-4000-8000-000000000001",
+      "actor": "daemon",
+      "at": "2026-11-15T10:00:04.000Z",
+      "correlationId": "30000000-0000-4000-8000-000000000001",
+      "type": "mission.result",
+      "payload": {
+        "missionId": "20000000-0000-4000-8000-000000000001",
+        "status": "completed",
+        "summary": "Done",
+        "claims": [],
+        "evidence": [],
+        "verdicts": [],
+        "artifactIds": [],
+        "unresolved": []
+      }
+    }
+  ]
+}
