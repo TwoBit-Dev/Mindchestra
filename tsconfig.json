@@ -9,6 +9,8 @@
     { "path": "./packages/mcp-gateway" },
     { "path": "./packages/mcp-server" },
     { "path": "./apps/daemon" },
+    { "path": "./packages/adapter-sdk" },
+    { "path": "./packages/adapters" },
     { "path": "./tsconfig.test.json" }
   ]
 }

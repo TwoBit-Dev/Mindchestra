@@ -54,6 +54,27 @@ importers:
         specifier: ~5.2.1
         version: 5.2.2
 
+  packages/adapter-sdk:
+    dependencies:
+      '@mindchestra/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      zod:
+        specifier: ~3.24.2
+        version: 3.24.4
+
+  packages/adapters:
+    dependencies:
+      '@mindchestra/adapter-sdk':
+        specifier: workspace:*
+        version: link:../adapter-sdk
+      '@mindchestra/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      zod:
+        specifier: ~3.24.2
+        version: 3.24.4
+
   packages/contracts:
     dependencies:
       zod:
