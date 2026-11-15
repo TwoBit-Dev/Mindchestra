@@ -1,0 +1,10 @@
+{
+  "name": "@mindchestra/example-custom-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@mindchestra/adapter-sdk": "workspace:*",
+    "@mindchestra/contracts": "workspace:*"
+  }
+}
