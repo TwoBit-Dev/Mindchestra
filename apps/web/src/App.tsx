@@ -1,40 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Activity,
   Layers,
   Cpu,
   ShieldCheck,
-  Play,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
-  Terminal,
-  Server,
-  FileCheck,
-  AlertTriangle,
   Flame,
-  ArrowRight
+  Play,
+  Terminal,
+  Clock,
+  Plus,
+  Circle,
+  X
 } from 'lucide-react';
-import type { AgentEvent, MissionSnapshot, MissionSpec } from '@mindchestra/contracts';
+import type { MissionSnapshot } from '@mindchestra/contracts';
 
-type NavTab =
-  | 'overview'
-  | 'missions'
-  | 'council'
-  | 'agents'
-  | 'mcp'
-  | 'evidence'
-  | 'approvals'
-  | 'replay'
-  | 'settings';
+type NavTab = 'missions' | 'council' | 'agents' | 'approvals';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('missions');
-  const [mockMode, setMockMode] = useState(true);
+  const [showNewMissionModal, setShowNewMissionModal] = useState(false);
 
-  // Sample active mission state
+  // Active mission state
   const [activeMission, setActiveMission] = useState<MissionSnapshot | null>({
-    id: 'm-0042-council-sample',
+    id: 'm-0042',
     spec: {
       schemaVersion: 1,
       objective: 'Analyze frame drop causes in game loop and verify allocation bounds',
@@ -66,10 +53,9 @@ export function App() {
     { seq: 4, type: 'mission.phase', actor: 'daemon', text: 'Phase barrier unlocked: critique round' }
   ]);
 
-  // Mission form inputs
+  // Form state
   const [objective, setObjective] = useState('');
   const [selectedMode, setSelectedMode] = useState<'council' | 'parallel' | 'review'>('council');
-  const [selectedAgents, setSelectedAgents] = useState<string[]>(['codex', 'claude', 'antigravity']);
 
   const handleStartMission = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +65,10 @@ export function App() {
       id: `m-${Math.floor(Math.random() * 9000 + 1000)}`,
       spec: {
         schemaVersion: 1,
-        objective,
+        objective: objective.trim(),
         mode: selectedMode,
-        agents: selectedAgents,
-        workspace: 'active-workspace',
+        agents: ['codex', 'claude', 'antigravity'],
+        workspace: 'local-repo',
         profile: 'read-only',
         budget: {
           maxRuns: 7,
@@ -103,285 +89,184 @@ export function App() {
 
     setActiveMission(newSnapshot);
     setEvents([
-      { seq: 1, type: 'mission.created', actor: 'daemon', text: `New mission started: ${objective}` }
+      { seq: 1, type: 'mission.created', actor: 'daemon', text: `Mission started: ${objective}` }
     ]);
+    setObjective('');
+    setShowNewMissionModal(false);
   };
 
+  const phases = ['prepare', 'independent', 'critique', 'verify', 'synthesize', 'finalize'];
+
   return (
-    <div className="flex h-screen w-screen bg-[#11191F] text-[#EAF3F0] font-sans overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-[#2C3E47] bg-[#162027] flex flex-col justify-between shrink-0">
+    <div className="flex h-screen w-screen bg-[#11191F] text-[#EAF3F0] font-sans antialiased overflow-hidden select-none">
+      {/* Sleek Minimal Sidebar */}
+      <aside className="w-56 border-r border-[#1C2830] bg-[#141E25] flex flex-col justify-between shrink-0">
         <div>
-          {/* Logo / Header */}
-          <div className="p-5 border-b border-[#2C3E47] flex items-center justify-between">
+          {/* Brand header */}
+          <div className="h-14 px-5 border-b border-[#1C2830] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-[#88C7AD] flex items-center justify-center text-[#11191F] font-bold">
-                M
-              </div>
-              <span className="font-semibold text-lg tracking-tight">mindchestra.</span>
+              <span className="w-2 h-2 rounded-full bg-[#88C7AD]"></span>
+              <span className="font-semibold text-sm tracking-tight">mindchestra.</span>
             </div>
-            <span className="text-[10px] tracking-wider font-mono uppercase bg-[#202D34] text-[#88C7AD] px-2 py-0.5 rounded border border-[#2C3E47]">
-              {mockMode ? 'Mock' : 'Live'}
+            <span className="text-[10px] font-mono text-[#8D9FA5] bg-[#19242C] px-1.5 py-0.5 rounded border border-[#22323D]">
+              local
             </span>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="p-3 space-y-1">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'overview'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <Activity className="w-4 h-4" /> Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('missions')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'missions'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <Layers className="w-4 h-4" /> Missions
-            </button>
-            <button
-              onClick={() => setActiveTab('council')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'council'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <Flame className="w-4 h-4" /> Council Room
-            </button>
-            <button
-              onClick={() => setActiveTab('agents')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'agents'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <Cpu className="w-4 h-4" /> Agent Registry
-            </button>
-            <button
-              onClick={() => setActiveTab('mcp')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'mcp'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <Server className="w-4 h-4" /> MCP Network
-            </button>
-            <button
-              onClick={() => setActiveTab('evidence')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'evidence'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <FileCheck className="w-4 h-4" /> Evidence Graph
-            </button>
-            <button
-              onClick={() => setActiveTab('approvals')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'approvals'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <ShieldCheck className="w-4 h-4" /> Approvals
-            </button>
-            <button
-              onClick={() => setActiveTab('replay')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
-                activeTab === 'replay'
-                  ? 'bg-[#202D34] text-[#88C7AD] font-medium'
-                  : 'text-[#8D9FA5] hover:bg-[#1D2B32] hover:text-[#EAF3F0]'
-              }`}
-            >
-              <RotateCcw className="w-4 h-4" /> Session Replay
-            </button>
+          {/* Navigation */}
+          <nav className="p-2 space-y-0.5">
+            {[
+              { id: 'missions', label: 'Missions', icon: Layers },
+              { id: 'council', label: 'Council Room', icon: Flame },
+              { id: 'agents', label: 'Agents', icon: Cpu },
+              { id: 'approvals', label: 'Approvals', icon: ShieldCheck }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as NavTab)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-[#1F2D36] text-[#88C7AD]'
+                      : 'text-[#8D9FA5] hover:text-[#EAF3F0] hover:bg-[#18232B]'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#88C7AD]' : 'text-[#5C6F76]'}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
 
-        {/* Footer info */}
-        <div className="p-4 border-t border-[#2C3E47] text-xs text-[#8D9FA5]">
-          <div className="flex items-center justify-between">
-            <span>Daemon</span>
-            <span className="flex items-center gap-1.5 text-[#88C7AD]">
-              <span className="w-2 h-2 rounded-full bg-[#88C7AD] inline-block"></span>
-              Online :4311
-            </span>
-          </div>
-          <div className="mt-2 text-[11px] text-[#5C6F76]">v0.1.0 · TwoBit Dev</div>
+        {/* Quiet footer */}
+        <div className="p-3 border-t border-[#1C2830] flex items-center justify-between text-[11px] text-[#5C6F76] font-mono">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#88C7AD]"></span>
+            :4311
+          </span>
+          <span>v0.1.0</span>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#11191F]">
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 border-b border-[#2C3E47] bg-[#162027] px-6 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-base font-semibold capitalize tracking-wide">
-              {activeTab === 'missions' ? 'Mission Control' : activeTab}
-            </h1>
-            <span className="text-xs text-[#8D9FA5] font-mono">
-              {activeMission ? `[${activeMission.id}]` : 'No mission selected'}
-            </span>
+        <header className="h-14 border-b border-[#1C2830] px-6 flex items-center justify-between shrink-0 bg-[#141E25]">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#8D9FA5]">Workspace</span>
+            <span className="text-xs text-[#5C6F76]">/</span>
+            <span className="text-xs font-medium text-[#EAF3F0]">demo-repo</span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMockMode(!mockMode)}
-              className="px-3 py-1 text-xs border border-[#2C3E47] rounded bg-[#202D34] hover:bg-[#2A3B44] transition-colors"
-            >
-              Mode: {mockMode ? 'Mock Offline' : 'Live Daemon'}
-            </button>
-          </div>
+          <button
+            onClick={() => setShowNewMissionModal(true)}
+            className="flex items-center gap-1.5 bg-[#88C7AD] hover:bg-[#77b79d] text-[#11191F] px-3 py-1.5 rounded text-xs font-semibold transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Mission</span>
+          </button>
         </header>
 
-        {/* View Content */}
+        {/* Content View */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {activeTab === 'missions' && (
-            <div className="space-y-6">
-              {/* Mission Snapshot Banner */}
-              {activeMission && (
-                <div className="bg-[#202D34] border border-[#2C3E47] rounded-lg p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs uppercase tracking-wider font-mono text-[#88C7AD] bg-[#11191F] px-2 py-0.5 rounded border border-[#2C3E47]">
-                        {activeMission.spec.mode} mode
-                      </span>
-                      <h2 className="text-lg font-medium mt-2">{activeMission.spec.objective}</h2>
+            <div className="max-w-4xl space-y-6">
+              {/* Mission Card */}
+              {activeMission ? (
+                <div className="bg-[#18232B] border border-[#22323D] rounded-lg p-5 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono uppercase text-[#88C7AD]">
+                          {activeMission.spec.mode}
+                        </span>
+                        <span className="text-xs text-[#5C6F76]">·</span>
+                        <span className="text-xs font-mono text-[#8D9FA5]">
+                          {activeMission.id}
+                        </span>
+                      </div>
+                      <h2 className="text-base font-medium text-[#EAF3F0] leading-snug">
+                        {activeMission.spec.objective}
+                      </h2>
                     </div>
-                    <span className="px-3 py-1 rounded text-xs uppercase font-mono font-semibold bg-[#11191F] border border-[#88C7AD] text-[#88C7AD]">
+
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono uppercase bg-[#11191F] border border-[#22323D] text-[#88C7AD] shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#88C7AD] animate-pulse"></span>
                       {activeMission.status}
                     </span>
                   </div>
 
-                  {/* Phase Progress Bar */}
-                  <div className="space-y-2">
+                  {/* Phase Tracker */}
+                  <div className="space-y-2 pt-2 border-t border-[#1C2830]">
                     <div className="flex items-center justify-between text-xs text-[#8D9FA5]">
-                      <span>Phase: {activeMission.phase}</span>
-                      <span>Budget: 7 runs · 600s</span>
+                      <span>Phase: <strong className="text-[#EAF3F0] font-normal">{activeMission.phase}</strong></span>
+                      <span className="text-[11px] font-mono text-[#5C6F76]">maxRuns: 7 · maxSeconds: 600</span>
                     </div>
-                    <div className="grid grid-cols-6 gap-2">
-                      {['prepare', 'independent', 'critique', 'verify', 'synthesize', 'finalize'].map(
-                        (phaseName) => {
-                          const isCurrent = activeMission.phase === phaseName;
-                          return (
-                            <div
-                              key={phaseName}
-                              className={`h-2 rounded ${
-                                isCurrent
-                                  ? 'bg-[#88C7AD]'
-                                  : 'bg-[#11191F] border border-[#2C3E47]'
-                              }`}
-                              title={phaseName}
-                            />
-                          );
-                        }
-                      )}
+
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {phases.map((p) => {
+                        const isCurrent = activeMission.phase === p;
+                        const isPast = phases.indexOf(p) < phases.indexOf(activeMission.phase);
+                        return (
+                          <div
+                            key={p}
+                            className={`h-1.5 rounded-full transition-all ${
+                              isCurrent
+                                ? 'bg-[#88C7AD]'
+                                : isPast
+                                ? 'bg-[#5E9580]'
+                                : 'bg-[#1C2830]'
+                            }`}
+                            title={p}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Active Agents Cards */}
-                  <div className="grid grid-cols-3 gap-4 pt-2">
+                  {/* Assigned Agents */}
+                  <div className="flex items-center gap-2 pt-1">
                     {activeMission.spec.agents.map((agent) => (
-                      <div
+                      <span
                         key={agent}
-                        className="bg-[#162027] border border-[#2C3E47] p-3 rounded flex items-center justify-between"
+                        className="inline-flex items-center gap-1 text-[11px] font-mono bg-[#141E25] border border-[#22323D] px-2 py-0.5 rounded text-[#8D9FA5]"
                       >
-                        <div className="flex items-center gap-2">
-                          <Cpu className="w-4 h-4 text-[#88C7AD]" />
-                          <span className="font-mono text-sm uppercase">{agent}</span>
-                        </div>
-                        <span className="text-xs text-[#88C7AD] flex items-center gap-1 font-mono">
-                          <Clock className="w-3 h-3" /> ACTIVE
-                        </span>
-                      </div>
+                        <Circle className="w-1.5 h-1.5 fill-[#88C7AD] text-[#88C7AD]" />
+                        {agent}
+                      </span>
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="border border-dashed border-[#22323D] rounded-lg p-12 text-center text-xs text-[#8D9FA5]">
+                  No active mission. Click "+ New Mission" above to start one.
+                </div>
               )}
 
-              {/* Mission Wizard */}
-              <div className="bg-[#202D34] border border-[#2C3E47] rounded-lg p-5">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-[#8D9FA5] mb-4">
-                  New Mission Dispatcher
-                </h3>
-                <form onSubmit={handleStartMission} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-[#8D9FA5] mb-1">
-                      Objective & Guidelines
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={objective}
-                      onChange={(e) => setObjective(e.target.value)}
-                      placeholder="e.g. Audit SQLite WAL transaction handling under high concurrency..."
-                      className="w-full bg-[#11191F] border border-[#2C3E47] rounded p-3 text-sm focus:outline-none focus:border-[#88C7AD]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-[#8D9FA5] mb-1">Mode</label>
-                      <select
-                        value={selectedMode}
-                        onChange={(e) => setSelectedMode(e.target.value as any)}
-                        className="w-full bg-[#11191F] border border-[#2C3E47] rounded p-2.5 text-sm focus:outline-none focus:border-[#88C7AD]"
-                      >
-                        <option value="council">Council (Multi-agent critique & synthesis)</option>
-                        <option value="parallel">Parallel (Independent runs comparison)</option>
-                        <option value="review">Review (Candidate verification)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-[#8D9FA5] mb-1">Workspace</label>
-                      <input
-                        type="text"
-                        readOnly
-                        value="local-first / demo-repo"
-                        className="w-full bg-[#11191F] border border-[#2C3E47] rounded p-2.5 text-sm text-[#8D9FA5]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-2">
-                    <button
-                      type="submit"
-                      className="flex items-center gap-2 bg-[#88C7AD] text-[#11191F] px-4 py-2 rounded font-medium text-sm hover:bg-[#72af97] transition-colors"
-                    >
-                      <Play className="w-4 h-4 fill-current" /> Dispatch Mission
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Real-time Event Stream */}
-              <div className="bg-[#162027] border border-[#2C3E47] rounded-lg p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Terminal className="w-4 h-4 text-[#88C7AD]" />
-                    <span>Ordered Event Stream</span>
-                  </div>
-                  <span className="text-xs text-[#8D9FA5] font-mono">
-                    Monotonic seq · {events.length} events
+              {/* Event Stream Log */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-[#8D9FA5] px-1">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Terminal className="w-3.5 h-3.5 text-[#88C7AD]" />
+                    Event Stream
+                  </span>
+                  <span className="font-mono text-[11px] text-[#5C6F76]">
+                    {events.length} events · monotonic seq
                   </span>
                 </div>
 
-                <div className="bg-[#11191F] border border-[#2C3E47] rounded p-3 space-y-2 font-mono text-xs max-h-64 overflow-y-auto">
+                <div className="bg-[#141E25] border border-[#1C2830] rounded-lg p-3 font-mono text-xs space-y-2 max-h-72 overflow-y-auto">
                   {events.map((ev) => (
-                    <div key={ev.seq} className="flex items-start gap-3 border-b border-[#1D2B32] pb-1.5 last:border-0">
-                      <span className="text-[#88C7AD] shrink-0 font-bold">#{ev.seq}</span>
+                    <div
+                      key={ev.seq}
+                      className="flex items-start gap-3 text-xs leading-relaxed py-0.5"
+                    >
+                      <span className="text-[#88C7AD] shrink-0 font-semibold select-none">
+                        #{ev.seq}
+                      </span>
                       <span className="text-[#5C6F76] shrink-0">[{ev.actor}]</span>
                       <span className="text-[#8D9FA5] shrink-0">{ev.type}</span>
                       <span className="text-[#EAF3F0] truncate">{ev.text}</span>
@@ -392,27 +277,53 @@ export function App() {
             </div>
           )}
 
+          {activeTab === 'council' && (
+            <div className="max-w-4xl space-y-3">
+              <div className="text-xs text-[#8D9FA5] font-mono mb-2">Round 2 · Independent findings</div>
+              <div className="bg-[#18232B] border border-[#22323D] p-4 rounded-lg space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#88C7AD]">Codex · Claim C-01</span>
+                  <span className="bg-[#11191F] px-2 py-0.5 rounded text-[10px] font-mono text-[#88C7AD]">
+                    CLAIM
+                  </span>
+                </div>
+                <p className="text-xs text-[#EAF3F0]">
+                  Object pooling reduces allocations in inner render loop. Evidence ref: E-01.
+                </p>
+              </div>
+
+              <div className="bg-[#18232B] border border-[#22323D] p-4 rounded-lg space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#88C7AD]">Claude Code · Critique C-02</span>
+                  <span className="bg-[#11191F] px-2 py-0.5 rounded text-[10px] font-mono text-[#FFD54F]">
+                    CRITIQUE
+                  </span>
+                </div>
+                <p className="text-xs text-[#EAF3F0]">
+                  Reset invariant may be violated if pool lifecycle is not guaranteed. Evidence ref: E-02.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'agents' && (
-            <div className="space-y-4">
-              <h2 className="text-base font-semibold">Registered Agent Adapters</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="max-w-4xl space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: 'mock-agent', name: 'Deterministic Mock Agent', kind: 'custom', status: 'READY', models: 'mock-v1' },
-                  { id: 'codex', name: 'Codex CLI', kind: 'cli', status: 'READY', models: 'gpt-5-codex' },
-                  { id: 'claude', name: 'Claude Code CLI', kind: 'cli', status: 'READY', models: 'claude-3-7-sonnet' },
-                  { id: 'antigravity', name: 'Antigravity CLI (agy)', kind: 'cli', status: 'READY', models: 'gemini-2.5-pro' }
-                ].map((item) => (
-                  <div key={item.id} className="bg-[#202D34] border border-[#2C3E47] rounded p-4 space-y-2">
+                  { id: 'mock-agent', name: 'Deterministic Mock Agent', provider: 'local', status: 'READY' },
+                  { id: 'codex', name: 'Codex CLI', provider: 'openai', status: 'READY' },
+                  { id: 'claude', name: 'Claude Code CLI', provider: 'anthropic', status: 'READY' },
+                  { id: 'antigravity', name: 'Antigravity CLI (agy)', provider: 'google', status: 'BETA' }
+                ].map((a) => (
+                  <div key={a.id} className="bg-[#18232B] border border-[#22323D] p-4 rounded-lg space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold">{item.name}</span>
-                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#11191F] text-[#88C7AD] border border-[#2C3E47]">
-                        {item.status}
+                      <span className="text-xs font-medium">{a.name}</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#11191F] text-[#88C7AD] border border-[#22323D]">
+                        {a.status}
                       </span>
                     </div>
-                    <div className="text-xs text-[#8D9FA5] font-mono space-y-1">
-                      <div>ID: {item.id}</div>
-                      <div>Kind: {item.kind}</div>
-                      <div>Model: {item.models}</div>
+                    <div className="text-[11px] font-mono text-[#8D9FA5]">
+                      id: {a.id} · provider: {a.provider}
                     </div>
                   </div>
                 ))}
@@ -420,76 +331,95 @@ export function App() {
             </div>
           )}
 
-          {activeTab === 'council' && (
-            <div className="space-y-4">
-              <h2 className="text-base font-semibold">Council Room · Critique Matrix</h2>
-              <div className="bg-[#202D34] border border-[#2C3E47] p-4 rounded space-y-3">
-                <div className="text-xs text-[#88C7AD] font-mono">Round 2 · Independent reports unlocked</div>
-                <div className="border border-[#2C3E47] bg-[#162027] p-3 rounded">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="font-bold text-[#88C7AD]">Codex · Claim C-01</span>
-                    <span className="bg-[#11191F] px-1.5 py-0.5 rounded text-[#88C7AD]">CLAIM</span>
-                  </div>
-                  <div className="text-sm">Object pooling reduces allocations in inner render loop. Evidence: E-01</div>
-                </div>
-
-                <div className="border border-[#2C3E47] bg-[#162027] p-3 rounded">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="font-bold text-[#88C7AD]">Claude Code · C-02</span>
-                    <span className="bg-[#11191F] px-1.5 py-0.5 rounded text-[#FFD54F]">CRITIQUE</span>
-                  </div>
-                  <div className="text-sm">Reset invariant may be violated if pool lifecycle is not guaranteed. Evidence: E-02</div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'approvals' && (
-            <div className="space-y-4">
-              <h2 className="text-base font-semibold">Pending Approvals (Action Hash Bound)</h2>
-              <div className="bg-[#202D34] border border-[#2C3E47] p-4 rounded space-y-3">
+            <div className="max-w-4xl space-y-3">
+              <div className="bg-[#18232B] border border-[#22323D] p-4 rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm">Approval Request A-17</span>
-                  <span className="text-xs font-mono bg-[#11191F] text-[#FFD54F] border border-[#2C3E47] px-2 py-0.5 rounded">
+                  <span className="text-xs font-semibold">Approval Request A-17</span>
+                  <span className="text-[10px] font-mono text-[#FFD54F] bg-[#11191F] px-2 py-0.5 rounded border border-[#22323D]">
                     HIGH RISK
                   </span>
                 </div>
-                <div className="font-mono text-xs text-[#8D9FA5]">
+                <div className="text-xs font-mono text-[#8D9FA5]">
                   Action: apply_patch · Target: src/pool.ts
-                  <div className="text-[11px] text-[#5C6F76] mt-1 truncate">
+                  <div className="text-[10px] text-[#5C6F76] mt-0.5 truncate">
                     Hash: 49a2b5e0c671a938d41fe093ab54b9d0e7293a1024e4d5801267812903abc812
                   </div>
                 </div>
-                <div className="flex gap-2 pt-2">
-                  <button className="px-3 py-1.5 bg-[#88C7AD] text-[#11191F] text-xs font-semibold rounded hover:bg-[#72af97]">
-                    Approve with Hash
+                <div className="flex gap-2 pt-1">
+                  <button className="px-3 py-1 bg-[#88C7AD] hover:bg-[#77b79d] text-[#11191F] text-xs font-semibold rounded transition-colors">
+                    Approve
                   </button>
-                  <button className="px-3 py-1.5 bg-[#162027] border border-[#2C3E47] text-xs font-medium rounded hover:bg-[#1D2B32]">
+                  <button className="px-3 py-1 bg-[#141E25] hover:bg-[#1B2730] border border-[#22323D] text-xs font-medium rounded transition-colors">
                     Deny
                   </button>
                 </div>
               </div>
             </div>
           )}
-
-          {activeTab === 'overview' && (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-[#202D34] border border-[#2C3E47] p-4 rounded">
-                <div className="text-xs text-[#8D9FA5]">Active Missions</div>
-                <div className="text-2xl font-bold mt-1 text-[#88C7AD]">1</div>
-              </div>
-              <div className="bg-[#202D34] border border-[#2C3E47] p-4 rounded">
-                <div className="text-xs text-[#8D9FA5]">Connected Adapters</div>
-                <div className="text-2xl font-bold mt-1 text-[#88C7AD]">4</div>
-              </div>
-              <div className="bg-[#202D34] border border-[#2C3E47] p-4 rounded">
-                <div className="text-xs text-[#8D9FA5]">Loopback Daemon</div>
-                <div className="text-2xl font-bold mt-1 text-[#88C7AD]">Healthy</div>
-              </div>
-            </div>
-          )}
         </div>
       </main>
+
+      {/* New Mission Modal */}
+      {showNewMissionModal && (
+        <div className="fixed inset-0 bg-[#0B1014]/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[#18232B] border border-[#22323D] rounded-xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#22323D] pb-3">
+              <h3 className="text-sm font-semibold text-[#EAF3F0]">New Mission Dispatcher</h3>
+              <button
+                onClick={() => setShowNewMissionModal(false)}
+                className="text-[#8D9FA5] hover:text-[#EAF3F0] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleStartMission} className="space-y-4">
+              <div>
+                <label className="block text-xs text-[#8D9FA5] mb-1">Objective</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={objective}
+                  onChange={(e) => setObjective(e.target.value)}
+                  placeholder="e.g. Audit SQLite WAL transaction handling under concurrency..."
+                  className="w-full bg-[#11191F] border border-[#22323D] rounded-md p-3 text-xs text-[#EAF3F0] focus:outline-none focus:border-[#88C7AD]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-[#8D9FA5] mb-1">Mode</label>
+                <select
+                  value={selectedMode}
+                  onChange={(e) => setSelectedMode(e.target.value as any)}
+                  className="w-full bg-[#11191F] border border-[#22323D] rounded-md p-2 text-xs text-[#EAF3F0] focus:outline-none focus:border-[#88C7AD]"
+                >
+                  <option value="council">Council (Multi-agent critique & synthesis)</option>
+                  <option value="parallel">Parallel (Independent runs comparison)</option>
+                  <option value="review">Review (Candidate verification)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#22323D]">
+                <button
+                  type="button"
+                  onClick={() => setShowNewMissionModal(false)}
+                  className="px-3 py-1.5 text-xs text-[#8D9FA5] hover:text-[#EAF3F0] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 bg-[#88C7AD] hover:bg-[#77b79d] text-[#11191F] px-4 py-1.5 rounded text-xs font-semibold transition-colors"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Dispatch</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
