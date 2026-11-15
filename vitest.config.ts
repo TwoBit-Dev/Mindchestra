@@ -14,7 +14,10 @@ export default defineConfig({
       '@mindchestra/core': path.join(rootDir, 'packages/core/src/index.ts'),
       '@mindchestra/mcp-gateway': path.join(rootDir, 'packages/mcp-gateway/src/index.ts'),
       '@mindchestra/mcp-server': path.join(rootDir, 'packages/mcp-server/src/index.ts'),
-      '@mindchestra/daemon': path.join(rootDir, 'apps/daemon/src/index.ts')
+      '@mindchestra/daemon': path.join(rootDir, 'apps/daemon/src/index.ts'),
+      '@mindchestra/adapter-sdk': path.join(rootDir, 'packages/adapter-sdk/src/index.ts'),
+      '@mindchestra/adapters': path.join(rootDir, 'packages/adapters/src/index.ts'),
+      '@mindchestra/cli': path.join(rootDir, 'apps/cli/src/index.ts')
     }
   },
   test: {

@@ -13,7 +13,10 @@
       "@mindchestra/core": ["./packages/core/src/index.ts"],
       "@mindchestra/mcp-gateway": ["./packages/mcp-gateway/src/index.ts"],
       "@mindchestra/mcp-server": ["./packages/mcp-server/src/index.ts"],
-      "@mindchestra/daemon": ["./apps/daemon/src/index.ts"]
+      "@mindchestra/daemon": ["./apps/daemon/src/index.ts"],
+      "@mindchestra/adapter-sdk": ["./packages/adapter-sdk/src/index.ts"],
+      "@mindchestra/adapters": ["./packages/adapters/src/index.ts"],
+      "@mindchestra/cli": ["./apps/cli/src/index.ts"]
     }
   },
   "include": ["tests/**/*.ts", "vitest.config.ts"],
@@ -25,6 +28,9 @@
     { "path": "./packages/core" },
     { "path": "./packages/mcp-gateway" },
     { "path": "./packages/mcp-server" },
-    { "path": "./apps/daemon" }
+    { "path": "./apps/daemon" },
+    { "path": "./packages/adapter-sdk" },
+    { "path": "./packages/adapters" },
+    { "path": "./apps/cli" }
   ]
 }
