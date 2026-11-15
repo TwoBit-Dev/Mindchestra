@@ -8,9 +8,22 @@ import type {
 
 export class DaemonClient {
   private readonly baseUrl: string;
+  private readonly token?: string;
 
-  constructor(baseUrl = process.env.MINDCHESTRA_DAEMON_URL ?? 'http://127.0.0.1:4311') {
+  constructor(
+    baseUrl = process.env.MINDCHESTRA_DAEMON_URL ?? 'http://127.0.0.1:4311',
+    token = process.env.MINDCHESTRA_TOKEN
+  ) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
+    this.token = token;
+  }
+
+  private headers(extra: Record<string, string> = {}): Record<string, string> {
+    const h: Record<string, string> = { ...extra };
+    if (this.token) {
+      h.authorization = `Bearer ${this.token}`;
+    }
+    return h;
   }
 
   async health(): Promise<{ status: string; version: string; schemaVersion: number }> {
@@ -22,7 +35,9 @@ export class DaemonClient {
   }
 
   async listAgents(): Promise<{ items: AgentSummary[] }> {
-    const res = await fetch(`${this.baseUrl}/v1/agents`);
+    const res = await fetch(`${this.baseUrl}/v1/agents`, {
+      headers: this.headers()
+    });
     if (!res.ok) {
       throw new Error(`Failed to list agents (HTTP ${res.status}): ${res.statusText}`);
     }
@@ -31,7 +46,8 @@ export class DaemonClient {
 
   async probeAgent(id: string): Promise<ProbeResult> {
     const res = await fetch(`${this.baseUrl}/v1/agents/${encodeURIComponent(id)}/probe`, {
-      method: 'POST'
+      method: 'POST',
+      headers: this.headers()
     });
     if (!res.ok) {
       throw new Error(`Failed to probe agent ${id} (HTTP ${res.status}): ${res.statusText}`);
@@ -40,13 +56,13 @@ export class DaemonClient {
   }
 
   async createMission(spec: MissionSpec, idempotencyKey?: string): Promise<MissionSnapshot> {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const h = this.headers({ 'Content-Type': 'application/json' });
     if (idempotencyKey) {
-      headers['Idempotency-Key'] = idempotencyKey;
+      h['Idempotency-Key'] = idempotencyKey;
     }
     const res = await fetch(`${this.baseUrl}/v1/missions`, {
       method: 'POST',
-      headers,
+      headers: h,
       body: JSON.stringify(spec)
     });
     if (!res.ok) {
@@ -57,7 +73,9 @@ export class DaemonClient {
   }
 
   async getMission(id: Id): Promise<MissionSnapshot> {
-    const res = await fetch(`${this.baseUrl}/v1/missions/${encodeURIComponent(id)}`);
+    const res = await fetch(`${this.baseUrl}/v1/missions/${encodeURIComponent(id)}`, {
+      headers: this.headers()
+    });
     if (!res.ok) {
       throw new Error(`Failed to get mission ${id} (HTTP ${res.status}): ${res.statusText}`);
     }
@@ -66,7 +84,8 @@ export class DaemonClient {
 
   async cancelMission(id: Id): Promise<MissionSnapshot> {
     const res = await fetch(`${this.baseUrl}/v1/missions/${encodeURIComponent(id)}/cancel`, {
-      method: 'POST'
+      method: 'POST',
+      headers: this.headers()
     });
     if (!res.ok) {
       throw new Error(`Failed to cancel mission ${id} (HTTP ${res.status}): ${res.statusText}`);
