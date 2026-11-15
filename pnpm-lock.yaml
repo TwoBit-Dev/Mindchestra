@@ -30,6 +30,21 @@ importers:
         specifier: ~3.24.2
         version: 3.24.4
 
+  apps/cli:
+    dependencies:
+      '@mindchestra/adapter-sdk':
+        specifier: workspace:*
+        version: link:../../packages/adapter-sdk
+      '@mindchestra/adapters':
+        specifier: workspace:*
+        version: link:../../packages/adapters
+      '@mindchestra/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      zod:
+        specifier: ~3.24.2
+        version: 3.24.4
+
   apps/daemon:
     dependencies:
       '@mindchestra/contracts':

@@ -11,6 +11,7 @@
     { "path": "./apps/daemon" },
     { "path": "./packages/adapter-sdk" },
     { "path": "./packages/adapters" },
+    { "path": "./apps/cli" },
     { "path": "./tsconfig.test.json" }
   ]
 }
